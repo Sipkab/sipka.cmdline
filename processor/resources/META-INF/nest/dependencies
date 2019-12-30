@@ -1,0 +1,4 @@
+sipka.cmdline-api
+	classpath: (this]
+sipka.cmdline-runtime
+	classpath: (this]
