@@ -71,14 +71,6 @@ export(
 		Output: sipka.cmdline-processor.jar,
 		Resources: [
 			{
-				Directory: $compile[apijavac][ClassDirectory],
-				Resources: **,
-			},
-			{
-				Directory: $compile[runtimejavac][ClassDirectory],
-				Resources: **,
-			},
-			{
 				Directory: $compile[procjavac][ClassDirectory],
 				Resources: **,
 			},
