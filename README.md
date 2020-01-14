@@ -1,4 +1,6 @@
-# saker.cmdline
+# sipka.cmdline
+
+[![Latest version](https://mirror.nest.saker.build/badges/sipka.cmdline/version.svg)](https://nest.saker.build/package/sipka.cmdline "sipka.cmdline | saker.nest")
 
 Annotation processor for generating command line argument parser and invoker. The project implements an annotation processor that generates Java classes which parse the input command line arguments based on the rules specified by the annotated source elements.
 
