@@ -228,7 +228,32 @@ public class CommandLineProcessor implements Processor {
 		filer = processingEnv.getFiler();
 		messager = processingEnv.getMessager();
 
-		supportsLambda = processingEnv.getSourceVersion().compareTo(SourceVersion.RELEASE_7) > 0;
+		SourceVersion srcver;
+		try {
+			srcver = processingEnv.getSourceVersion();
+			supportsLambda = srcver.compareTo(SourceVersion.RELEASE_7) > 0;
+		} catch (Exception e) {
+			if ("saker.java.compiler.api.processing.exc.SourceVersionNotFoundException"
+					.equals(e.getClass().getName())) {
+				//the source version enum is not available in this JVM
+				//the name of the source version is the message of the exception
+				String enumname = e.getMessage();
+				if (!enumname.startsWith("RELEASE_")) {
+					//can't interpret
+					throw e;
+				}
+				try {
+					int srcvernum = Integer.parseInt(enumname.substring(8));
+					supportsLambda = srcvernum >= 8;
+				} catch (NumberFormatException nfe) {
+					e.addSuppressed(nfe);
+					throw e;
+				}
+			} else {
+				//unrecognized exception
+				throw e;
+			}
+		}
 
 		Map<String, String> procoptions = processingEnv.getOptions();
 		String helpinfoarg = procoptions.get(OPTION_GENERATE_HELP_INFO);

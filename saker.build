@@ -8,10 +8,16 @@ compile(
 	$runtimejavac = saker.java.compile(
 		SourceDirectories: runtime/src/,
 		Identifier: runtime,
+		SourceVersion: RELEASE_8,
+		TargetVersion: RELEASE_8,
+		Parameters: [--release, 8]
 	)
 	$apijavac = saker.java.compile(
 		SourceDirectories: [ api/src/ ],
 		Identifier: api,
+		SourceVersion: RELEASE_8,
+		TargetVersion: RELEASE_8,
+		Parameters: [--release, 8]
 	)
 	$procjavac = saker.java.compile(
 		SourceDirectories: [
@@ -22,6 +28,9 @@ compile(
 			$runtimejavac,
 		],
 		Identifier: processor,
+		SourceVersion: RELEASE_8,
+		TargetVersion: RELEASE_8,
+		Parameters: [--release, 8]
 	)
 }
 export(
