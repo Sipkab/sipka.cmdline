@@ -25,7 +25,7 @@ public class ParseUtil {
 	}
 
 	public static <T extends Enum<T>> T parseEnumUpperCaseArgument(Class<T> enumclass, String arg,
-			Iterator<? extends String> it) throws NullPointerException, IllegalArgumentException {
+			Iterator<? extends String> it) throws NullPointerException, ArgumentException {
 		String next = requireNextArgument(arg, it);
 		//we use the english locale to converting to upper case for determinism
 		try {
@@ -52,7 +52,7 @@ public class ParseUtil {
 	}
 
 	public static <T extends Enum<T>> T parseEnumArgument(Class<T> enumclass, String arg, Iterator<? extends String> it)
-			throws NullPointerException, IllegalArgumentException {
+			throws NullPointerException, ArgumentException {
 		String next = requireNextArgument(arg, it);
 		try {
 			return Enum.valueOf(enumclass, next);
@@ -78,13 +78,13 @@ public class ParseUtil {
 	}
 
 	public static String parseStringArgument(String arg, Iterator<? extends String> it)
-			throws NullPointerException, IllegalArgumentException {
+			throws NullPointerException, ArgumentException {
 		String next = requireNextArgument(arg, it);
 		return next;
 	}
 
 	public static byte parseByteArgument(String arg, Iterator<? extends String> it)
-			throws NullPointerException, IllegalArgumentException {
+			throws NullPointerException, ArgumentException {
 		String next = requireNextArgument(arg, it);
 		try {
 			return Byte.parseByte(next);
@@ -94,7 +94,7 @@ public class ParseUtil {
 	}
 
 	public static short parseShortArgument(String arg, Iterator<? extends String> it)
-			throws NullPointerException, IllegalArgumentException {
+			throws NullPointerException, ArgumentException {
 		String next = requireNextArgument(arg, it);
 		try {
 			return Short.parseShort(next);
@@ -104,7 +104,7 @@ public class ParseUtil {
 	}
 
 	public static int parseIntegerArgument(String arg, Iterator<? extends String> it)
-			throws NullPointerException, IllegalArgumentException {
+			throws NullPointerException, ArgumentException {
 		String next = requireNextArgument(arg, it);
 		try {
 			return Integer.parseInt(next);
@@ -114,7 +114,7 @@ public class ParseUtil {
 	}
 
 	public static long parseLongArgument(String arg, Iterator<? extends String> it)
-			throws NullPointerException, IllegalArgumentException {
+			throws NullPointerException, ArgumentException {
 		String next = requireNextArgument(arg, it);
 		try {
 			return Long.parseLong(next);
@@ -124,7 +124,7 @@ public class ParseUtil {
 	}
 
 	public static float parseFloatArgument(String arg, Iterator<? extends String> it)
-			throws NullPointerException, IllegalArgumentException {
+			throws NullPointerException, ArgumentException {
 		String next = requireNextArgument(arg, it);
 		try {
 			return Float.parseFloat(next);
@@ -134,7 +134,7 @@ public class ParseUtil {
 	}
 
 	public static double parseDoubleArgument(String arg, Iterator<? extends String> it)
-			throws NullPointerException, IllegalArgumentException {
+			throws NullPointerException, ArgumentException {
 		String next = requireNextArgument(arg, it);
 		try {
 			return Double.parseDouble(next);
@@ -144,7 +144,7 @@ public class ParseUtil {
 	}
 
 	public static boolean parseBooleanArgument(String arg, Iterator<? extends String> it)
-			throws NullPointerException, IllegalArgumentException {
+			throws NullPointerException, ArgumentException {
 		String next = requireNextArgument(arg, it);
 		if ("true".equalsIgnoreCase(next)) {
 			return true;
@@ -156,7 +156,7 @@ public class ParseUtil {
 	}
 
 	public static char parseCharacterArgument(String arg, Iterator<? extends String> it)
-			throws NullPointerException, IllegalArgumentException {
+			throws NullPointerException, ArgumentException {
 		String next = requireNextArgument(arg, it);
 		if (next.length() == 1) {
 			return next.charAt(0);
@@ -250,7 +250,7 @@ public class ParseUtil {
 	}
 
 	public static String requireNextArgument(String arg, Iterator<? extends String> it)
-			throws NullPointerException, IllegalArgumentException {
+			throws NullPointerException, ArgumentException {
 		Objects.requireNonNull(it, "iterator");
 		if (!it.hasNext()) {
 			throw new MissingArgumentException("Missing argument", arg);
@@ -264,7 +264,7 @@ public class ParseUtil {
 	}
 
 	public static void requireHasNextArgument(String arg, Iterator<? extends String> it)
-			throws NullPointerException, IllegalArgumentException {
+			throws NullPointerException, ArgumentException {
 		Objects.requireNonNull(it, "iterator");
 		if (!it.hasNext()) {
 			throw new MissingArgumentException("Missing argument", arg);
