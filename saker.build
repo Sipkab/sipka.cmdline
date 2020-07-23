@@ -1,4 +1,4 @@
-global(VERSION_sipka.cmdline) = "0.8.1"
+global(VERSION_sipka.cmdline) = "0.8.2"
 
 compile(
 	out runtimejavac,
