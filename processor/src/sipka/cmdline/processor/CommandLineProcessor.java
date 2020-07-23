@@ -77,8 +77,11 @@ import sipka.cmdline.processor.model.ModelConverter;
 import sipka.cmdline.processor.model.ModelMultiParameter;
 import sipka.cmdline.processor.model.ModelParameter;
 import sipka.cmdline.processor.model.ModelSubCommand;
+import sipka.cmdline.runtime.ArgumentException;
+import sipka.cmdline.runtime.MissingArgumentException;
 import sipka.cmdline.runtime.ParseUtil;
 import sipka.cmdline.runtime.ParsingIterator;
+import sipka.cmdline.runtime.UnrecognizedArgumentException;
 
 public class CommandLineProcessor implements Processor {
 	private static final String COMMAND_FILE_PARAMETER_NAME = "@command-file";
@@ -285,9 +288,9 @@ public class CommandLineProcessor implements Processor {
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		if (commandAnnot == null) {
-			commandAnnot = elements.getTypeElement(Command.class.getName());
-			converterAnnot = elements.getTypeElement(Converter.class.getName());
-			commonConverterAnnot = elements.getTypeElement(CommonConverter.class.getName());
+			commandAnnot = elements.getTypeElement(Command.class.getCanonicalName());
+			converterAnnot = elements.getTypeElement(Converter.class.getCanonicalName());
+			commonConverterAnnot = elements.getTypeElement(CommonConverter.class.getCanonicalName());
 
 			javaLangString = elements.getTypeElement(String.class.getCanonicalName());
 			javaLangBoolean = elements.getTypeElement(Boolean.class.getCanonicalName());
@@ -1312,13 +1315,13 @@ public class CommandLineProcessor implements Processor {
 		ModelCommonConverter cc = getCommonConverterForType(cmd, targettype);
 		if (cc != null) {
 			dependentelements.add(cc.getMethodDeclaringType());
-			return cc.getMethodDeclaringType().getQualifiedName() + "." + cc.getMethodName() + "(args)";
+			return cc.getMethodDeclaringType().getQualifiedName() + "." + cc.getMethodName() + "(a, args)";
 		}
 		return null;
 	}
 
 	private static String getConverterParameterParseCall(ModelConverter converter) {
-		return converter.getMethodDeclaringType().getQualifiedName() + "." + converter.getMethodName() + "(args)";
+		return converter.getMethodDeclaringType().getQualifiedName() + "." + converter.getMethodName() + "(a, args)";
 	}
 
 	private static void removeSubCommandNamesFromCollection(Collection<String> coll,
@@ -1541,6 +1544,7 @@ public class CommandLineProcessor implements Processor {
 				}
 
 				{
+					ps.println("try {");
 					ps.println("switch (a) {");
 
 					for (ModelParameter param : cmdparameters) {
@@ -1597,12 +1601,22 @@ public class CommandLineProcessor implements Processor {
 							//has more positional parameters, do not throw the exception
 							ps.println("break param_loop;");
 						} else {
-							ps.println("throw new IllegalArgumentException(\"Unrecognized argument: \" + a);");
+							ps.println("throw new " + UnrecognizedArgumentException.class.getCanonicalName()
+									+ "(\"Unrecognized argument\", a);");
 						}
 					}
-					ps.println("}");
+					ps.println("}"); // default:
 
-					ps.println("}");
+					ps.println("}"); // switch
+
+					ps.println("} catch (" + ArgumentException.class.getCanonicalName() + " e) {");
+					//rethrow
+					ps.println("throw e;");
+					ps.println("} catch (" + RuntimeException.class.getCanonicalName() + " e) {");
+					ps.println("throw new " + ArgumentException.class.getCanonicalName()
+							+ "(\"Failed to interpret the argument(s)\", e, a);");
+					ps.println("}"); // catch
+
 				}
 				ps.println("}");
 				if (defaultcommand != null) {
@@ -1634,7 +1648,8 @@ public class CommandLineProcessor implements Processor {
 						//end_positional_block end:
 						ps.println("}");
 						ps.println("if (args.hasNext()) {");
-						ps.println("throw new IllegalArgumentException(\"Unrecognized argument: \" + args.peek());");
+						ps.println("throw new " + UnrecognizedArgumentException.class.getCanonicalName()
+								+ "(\"Unrecognized argument\", args.peek());");
 						ps.println("}");
 					}
 
@@ -1704,7 +1719,9 @@ public class CommandLineProcessor implements Processor {
 					}
 					String cfconst = toHexLongConstantString(checkflag);
 					ps.println("if ((requires" + (i / 64) + " & " + cfconst + ") != " + cfconst + ") {");
-					ps.println("throw new IllegalArgumentException(\"Required parameters missing.\");");
+					//TODO print info about which parameters are missing
+					ps.println("throw new " + MissingArgumentException.class.getCanonicalName()
+							+ "(\"Required parameters missing.\");");
 					ps.println("}");
 					i += 64;
 				}
@@ -1780,7 +1797,8 @@ public class CommandLineProcessor implements Processor {
 				ps.println("parse(args, result);");
 				ps.println("return result;");
 				ps.println("} catch (java.io.IOException e) {");
-				ps.println("throw new IllegalArgumentException(\"Failed to arguments iterator.\", e);");
+				ps.println("throw new " + UncheckedIOException.class.getCanonicalName()
+						+ "(\"Failed to close argument iterator.\", e);");
 				ps.println("}");
 			}
 			ps.println("}");

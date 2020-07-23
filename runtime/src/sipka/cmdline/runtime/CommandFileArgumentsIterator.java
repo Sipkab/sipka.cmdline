@@ -18,6 +18,7 @@ package sipka.cmdline.runtime;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
@@ -48,12 +49,18 @@ class CommandFileArgumentsIterator extends ArgumentsIterator {
 	@Override
 	protected boolean setNext(String next) {
 		if (next.startsWith("@")) {
-			Path path = Paths.get(next.substring(1));
+			Path path;
+			String pathstr = next.substring(1);
+			try {
+				path = Paths.get(pathstr);
+			} catch (InvalidPathException e) {
+				throw new InvalidArgumentValueException("Invalid command file path: " + pathstr, e, next);
+			}
 			try {
 				fileStream = Files.lines(path, StandardCharsets.UTF_8);
 				fileIt = fileStream.iterator();
 			} catch (IOException e) {
-				throw new IllegalArgumentException("Failed to read command file: " + path, e);
+				throw new ArgumentResolutionException("Failed to open command file: " + pathstr, e, next);
 			}
 			if (fileIt.hasNext()) {
 				return super.setNext(fileIt.next());

@@ -26,73 +26,142 @@ public class ParseUtil {
 
 	public static <T extends Enum<T>> T parseEnumUpperCaseArgument(Class<T> enumclass, String arg,
 			Iterator<? extends String> it) throws NullPointerException, IllegalArgumentException {
-		requireHasNextArgument(arg, it);
+		String next = requireNextArgument(arg, it);
 		//we use the english locale to converting to upper case for determinism
-		return Enum.valueOf(enumclass, it.next().toUpperCase(Locale.ENGLISH));
+		try {
+			return Enum.valueOf(enumclass, next.toUpperCase(Locale.ENGLISH));
+		} catch (IllegalArgumentException e) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Unrecognized enum value: ");
+			sb.append(next);
+			sb.append(" for type: ");
+			sb.append(enumclass.getName());
+			T[] enumConstants = enumclass.getEnumConstants();
+			if (enumConstants.length >= 0) {
+				sb.append(" Expected any of (case-insensitive): ");
+				for (int i = 0; i < enumConstants.length; i++) {
+					T ec = enumConstants[i];
+					sb.append(ec.name());
+					if (i + 1 < enumConstants.length) {
+						sb.append(", ");
+					}
+				}
+			}
+			throw new InvalidArgumentValueException(sb.toString(), arg);
+		}
 	}
 
 	public static <T extends Enum<T>> T parseEnumArgument(Class<T> enumclass, String arg, Iterator<? extends String> it)
 			throws NullPointerException, IllegalArgumentException {
-		requireHasNextArgument(arg, it);
-		return Enum.valueOf(enumclass, it.next());
+		String next = requireNextArgument(arg, it);
+		try {
+			return Enum.valueOf(enumclass, next);
+		} catch (IllegalArgumentException e) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Unrecognized enum value: ");
+			sb.append(next);
+			sb.append(" for type: ");
+			sb.append(enumclass.getName());
+			T[] enumConstants = enumclass.getEnumConstants();
+			if (enumConstants.length >= 0) {
+				sb.append(" Expected any of: ");
+				for (int i = 0; i < enumConstants.length; i++) {
+					T ec = enumConstants[i];
+					sb.append(ec.name());
+					if (i + 1 < enumConstants.length) {
+						sb.append(", ");
+					}
+				}
+			}
+			throw new InvalidArgumentValueException(sb.toString(), arg);
+		}
 	}
 
 	public static String parseStringArgument(String arg, Iterator<? extends String> it)
 			throws NullPointerException, IllegalArgumentException {
-		requireHasNextArgument(arg, it);
-		return it.next();
+		String next = requireNextArgument(arg, it);
+		return next;
 	}
 
 	public static byte parseByteArgument(String arg, Iterator<? extends String> it)
 			throws NullPointerException, IllegalArgumentException {
-		requireHasNextArgument(arg, it);
-		return Byte.parseByte(it.next());
+		String next = requireNextArgument(arg, it);
+		try {
+			return Byte.parseByte(next);
+		} catch (NumberFormatException e) {
+			throw new InvalidArgumentFormatException("Invalid input number for byte: " + next, e, arg);
+		}
 	}
 
 	public static short parseShortArgument(String arg, Iterator<? extends String> it)
 			throws NullPointerException, IllegalArgumentException {
-		requireHasNextArgument(arg, it);
-		return Short.parseShort(it.next());
+		String next = requireNextArgument(arg, it);
+		try {
+			return Short.parseShort(next);
+		} catch (NumberFormatException e) {
+			throw new InvalidArgumentFormatException("Invalid input number for short: " + next, e, arg);
+		}
 	}
 
 	public static int parseIntegerArgument(String arg, Iterator<? extends String> it)
 			throws NullPointerException, IllegalArgumentException {
-		requireHasNextArgument(arg, it);
-		return Integer.parseInt(it.next());
+		String next = requireNextArgument(arg, it);
+		try {
+			return Integer.parseInt(next);
+		} catch (NumberFormatException e) {
+			throw new InvalidArgumentFormatException("Invalid input number for int: " + next, e, arg);
+		}
 	}
 
 	public static long parseLongArgument(String arg, Iterator<? extends String> it)
 			throws NullPointerException, IllegalArgumentException {
-		requireHasNextArgument(arg, it);
-		return Long.parseLong(it.next());
+		String next = requireNextArgument(arg, it);
+		try {
+			return Long.parseLong(next);
+		} catch (NumberFormatException e) {
+			throw new InvalidArgumentFormatException("Invalid input number for long: " + next, e, arg);
+		}
 	}
 
 	public static float parseFloatArgument(String arg, Iterator<? extends String> it)
 			throws NullPointerException, IllegalArgumentException {
-		requireHasNextArgument(arg, it);
-		return Float.parseFloat(it.next());
+		String next = requireNextArgument(arg, it);
+		try {
+			return Float.parseFloat(next);
+		} catch (NumberFormatException e) {
+			throw new InvalidArgumentFormatException("Invalid input number for float: " + next, e, arg);
+		}
 	}
 
 	public static double parseDoubleArgument(String arg, Iterator<? extends String> it)
 			throws NullPointerException, IllegalArgumentException {
-		requireHasNextArgument(arg, it);
-		return Double.parseDouble(it.next());
+		String next = requireNextArgument(arg, it);
+		try {
+			return Double.parseDouble(next);
+		} catch (NumberFormatException e) {
+			throw new InvalidArgumentFormatException("Invalid input number for double: " + next, e, arg);
+		}
 	}
 
 	public static boolean parseBooleanArgument(String arg, Iterator<? extends String> it)
 			throws NullPointerException, IllegalArgumentException {
-		requireHasNextArgument(arg, it);
-		return Boolean.parseBoolean(it.next());
+		String next = requireNextArgument(arg, it);
+		if ("true".equalsIgnoreCase(next)) {
+			return true;
+		}
+		if ("false".equals(next)) {
+			return false;
+		}
+		throw new InvalidArgumentFormatException("Expected true or false for boolean argument.", arg);
 	}
 
 	public static char parseCharacterArgument(String arg, Iterator<? extends String> it)
 			throws NullPointerException, IllegalArgumentException {
-		requireHasNextArgument(arg, it);
-		String a = it.next();
-		if (a.length() == 1) {
-			return a.charAt(0);
+		String next = requireNextArgument(arg, it);
+		if (next.length() == 1) {
+			return next.charAt(0);
 		}
-		throw new IllegalArgumentException("Failed to parse character: " + arg);
+		throw new InvalidArgumentFormatException("Invalid input value for character: " + next, arg);
 	}
 
 	public static String toKeyValueArgument(String prefix, String key, String value) throws NullPointerException {
@@ -147,6 +216,8 @@ public class ParseUtil {
 		//    quote is escaped using \"
 		int len = arg.length();
 		if (len < prefixlen) {
+			//don't throw ArgumentException subtype as this is a harder failure
+			//the caller should satisfy this precondition
 			throw new IllegalArgumentException("Too short argument: " + arg + " for prefix length: " + prefixlen);
 		}
 		Objects.requireNonNull(result, "result");
@@ -182,16 +253,21 @@ public class ParseUtil {
 			throws NullPointerException, IllegalArgumentException {
 		Objects.requireNonNull(it, "iterator");
 		if (!it.hasNext()) {
-			throw new IllegalArgumentException("Argument missing for: " + arg);
+			throw new MissingArgumentException("Missing argument", arg);
 		}
-		return it.next();
+		String result = it.next();
+		if (result == null) {
+			//don't throw ArgumentException subtype as this is a harder failure
+			throw new NullPointerException("null argument value for: " + arg);
+		}
+		return result;
 	}
 
 	public static void requireHasNextArgument(String arg, Iterator<? extends String> it)
 			throws NullPointerException, IllegalArgumentException {
 		Objects.requireNonNull(it, "iterator");
 		if (!it.hasNext()) {
-			throw new IllegalArgumentException("Argument missing for: " + arg);
+			throw new MissingArgumentException("Missing argument", arg);
 		}
 	}
 }
