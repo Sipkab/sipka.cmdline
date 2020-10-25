@@ -38,12 +38,16 @@ class CommandFileArgumentsIterator extends ArgumentsIterator {
 
 	@Override
 	protected void moveToNext() {
-		if (this.fileIt != null) {
-			if (this.fileIt.hasNext()) {
-				super.setNext(this.fileIt.next());
+		Iterator<String> fileit = this.fileIt;
+		if (fileit != null) {
+			if (fileit.hasNext()) {
+				super.setNext(fileit.next());
 				return;
 			}
-			this.fileStream.close();
+			Stream<String> fstream = this.fileStream;
+			if (fstream != null) {
+				fstream.close();
+			}
 			this.fileStream = null;
 			this.fileIt = null;
 		}
