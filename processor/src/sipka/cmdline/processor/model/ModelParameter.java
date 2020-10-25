@@ -483,10 +483,11 @@ public class ModelParameter {
 		TypeMirror parsingittype = processor.getParsingIteratorType().asType();
 		for (ExecutableElement ee : methods) {
 			List<? extends VariableElement> methodparams = ee.getParameters();
-			if (methodparams.size() != 1) {
+			if (methodparams.size() != 2) {
+				//required params: String parametername, Iterator<? extends String> args
 				continue;
 			}
-			if (types.isAssignable(parsingittype, methodparams.get(0).asType())) {
+			if (types.isAssignable(parsingittype, methodparams.get(1).asType())) {
 				String methodformattag = CommandLineProcessor
 						.getDocCommentTag(processor.getElements().getDocComment(ee), DOC_TAG_PARAMETER_FORMAT);
 				if (methodformattag != null) {

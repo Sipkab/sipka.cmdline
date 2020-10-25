@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 class ArgumentsIterator implements ParsingIterator {
-	private Iterator<? extends String> it;
+	protected Iterator<? extends String> it;
 	private String next;
 
 	ArgumentsIterator(Iterator<? extends String> args) {

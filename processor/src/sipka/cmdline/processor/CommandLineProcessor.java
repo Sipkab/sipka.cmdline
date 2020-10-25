@@ -85,6 +85,7 @@ import sipka.cmdline.runtime.UnrecognizedArgumentException;
 
 public class CommandLineProcessor implements Processor {
 	private static final String COMMAND_FILE_PARAMETER_NAME = "@command-file";
+	private static final String COMMAND_FILE_DELETE_PARAMETER_NAME = "@!delete!@command-file";
 
 	private static final List<String> COMMAND_FILE_PARAMETER_DESCRIPTION_LINES = Arrays.asList(
 			"File path prefixed with '@' to directly include arguments from the ",
@@ -93,6 +94,9 @@ public class CommandLineProcessor implements Processor {
 			"The argument can appear anywhere on the command line. Escaping",
 			"is not supported for arguments in the command file. ", "The file path may be absolute or relative.", "",
 			"E.g: @path/to/arguments.txt");
+
+	private static final List<String> COMMAND_FILE_DELETE_PARAMETER_DESCRIPTION_LINES = Arrays
+			.asList("Same as @command-file but the file will be deleted after the arguments are parsed.");
 
 	public static final String OPTION_GENERATE_HELP_INFO = "sipka.cmdline.help.generate";
 	public static final String OPTION_HELP_LINE_LENGTH_ERROR_LIMIT = "sipka.cmdline.help.line.errorlimit";
@@ -529,6 +533,12 @@ public class CommandLineProcessor implements Processor {
 		writeDataStringCollection(dos, null); //metanames
 		dos.writeUTF(String.join("\n", COMMAND_FILE_PARAMETER_DESCRIPTION_LINES));
 		dos.writeUTF("");
+
+		writeDataStringCollection(dos, Collections.singleton(COMMAND_FILE_DELETE_PARAMETER_NAME));
+		writeDataStringCollection(dos, null); //flags
+		writeDataStringCollection(dos, null); //metanames
+		dos.writeUTF(String.join("\n", COMMAND_FILE_DELETE_PARAMETER_DESCRIPTION_LINES));
+		dos.writeUTF("");
 	}
 
 	private void generateCommandHelpReference(DataOutput dos, List<ModelCommand> cmdlist) throws IOException {
@@ -559,9 +569,6 @@ public class CommandLineProcessor implements Processor {
 		dos.writeUTF(usagesb.toString());
 		dos.writeUTF(doccomment);
 		dos.writeInt(paramcount);
-		if (commandFileEnabled) {
-			writeCommandFileParameterReference(dos);
-		}
 		for (ModelParameter p : posparams) {
 			if (p.getPositional().value() < 0) {
 				continue;
@@ -579,6 +586,9 @@ public class CommandLineProcessor implements Processor {
 				continue;
 			}
 			writeParameterReference(dos, p, true);
+		}
+		if (commandFileEnabled) {
+			writeCommandFileParameterReference(dos);
 		}
 	}
 
@@ -920,10 +930,6 @@ public class CommandLineProcessor implements Processor {
 
 			if (!parameters.isEmpty() || commandFileEnabled) {
 				helpsb.append("\nParameters:\n");
-				if (commandFileEnabled) {
-					appendHelpBlockParagraphed(helpsb, Collections.singleton(COMMAND_FILE_PARAMETER_NAME),
-							COMMAND_FILE_PARAMETER_DESCRIPTION_LINES);
-				}
 				for (ModelParameter p : posparams) {
 					if (p.getPositional().value() < 0) {
 						continue;
@@ -988,6 +994,12 @@ public class CommandLineProcessor implements Processor {
 						names.add(HELP_FLAG_INDENT + hmeta);
 					}
 					appendHelpBlockParagraphed(helpsb, names, splitToLines(removeDocCommentTags(paramdoccomment)));
+				}
+				if (commandFileEnabled) {
+					appendHelpBlockParagraphed(helpsb, Collections.singleton(COMMAND_FILE_PARAMETER_NAME),
+							COMMAND_FILE_PARAMETER_DESCRIPTION_LINES);
+					appendHelpBlockParagraphed(helpsb, Collections.singleton(COMMAND_FILE_DELETE_PARAMETER_NAME),
+							COMMAND_FILE_DELETE_PARAMETER_DESCRIPTION_LINES);
 				}
 			}
 
@@ -1069,13 +1081,6 @@ public class CommandLineProcessor implements Processor {
 					helpsb.append('?');
 				}
 			}
-			if (commandFileEnabled) {
-				if (hadarg) {
-					helpsb.append(' ');
-				}
-				hadarg = true;
-				helpsb.append("[" + COMMAND_FILE_PARAMETER_NAME + "]");
-			}
 			for (ModelParameter p : parameters) {
 				if (p.getPositional() != null) {
 					continue;
@@ -1086,6 +1091,13 @@ public class CommandLineProcessor implements Processor {
 				hadarg = true;
 				helpsb.append("[parameters]");
 				break;
+			}
+			if (commandFileEnabled) {
+				if (hadarg) {
+					helpsb.append(' ');
+				}
+				hadarg = true;
+				helpsb.append("[" + COMMAND_FILE_PARAMETER_NAME + "]");
 			}
 			for (ModelParameter p : posparams) {
 				if (p.getPositional().value() >= 0) {
