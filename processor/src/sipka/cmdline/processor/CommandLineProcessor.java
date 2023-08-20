@@ -556,7 +556,8 @@ public class CommandLineProcessor implements Processor {
 
 		int paramcount = posparams.size();
 		if (commandFileEnabled) {
-			paramcount++;
+			//two kinds of command file parameters
+			paramcount += 2;
 		}
 		for (ModelParameter p : parameters) {
 			if (p.getPositional() != null) {
