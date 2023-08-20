@@ -1,6 +1,6 @@
 # sipka.cmdline
 
-![Build status](https://img.shields.io/azure-devops/build/sipkab/de839a76-f269-4f5c-86d5-dcaab98d57f1/3/master) [![Latest version](https://mirror.nest.saker.build/badges/sipka.cmdline/version.svg)](https://nest.saker.build/package/sipka.cmdline "sipka.cmdline | saker.nest")
+[![Build status](https://img.shields.io/azure-devops/build/sipkab/de839a76-f269-4f5c-86d5-dcaab98d57f1/3/master)](https://dev.azure.com/sipkab/sipka.cmdline/_build) [![Latest version](https://mirror.nest.saker.build/badges/sipka.cmdline/version.svg)](https://nest.saker.build/package/sipka.cmdline "sipka.cmdline | saker.nest")
 
 Annotation processor for generating command line argument parser and invoker. The project implements an annotation processor that generates Java classes which parse the input command line arguments based on the rules specified by the annotated source elements.
 
